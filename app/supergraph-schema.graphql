@@ -76,6 +76,7 @@ type Block
 {
   blockID: String!
   blockHeader: BlockHeader!
+  transactions: [Transaction!]
 }
 
 type BlockHeader

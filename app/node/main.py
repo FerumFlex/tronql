@@ -21,12 +21,6 @@ class BlockHeader:
 
 
 @strawberry.type
-class Block:
-    blockID: str
-    blockHeader: BlockHeader
-
-
-@strawberry.type
 class AccountAsset:
     key: str
     value: float
@@ -167,6 +161,13 @@ class Witnes:
 
 
 @strawberry.type
+class Block:
+    blockID: str
+    blockHeader: BlockHeader
+    transactions: List[Transaction] | None = None
+
+
+@strawberry.type
 class Event:
     block_number: int
     block_timestamp: datetime.datetime
@@ -191,7 +192,8 @@ def parse_block(data: dict) -> Block:
             parentHash=data["block_header"]["raw_data"]["parentHash"],
             version=data["block_header"]["raw_data"]["version"],
             timestamp=from_timestamp(data["block_header"]["raw_data"].pop("timestamp")),
-        )
+        ),
+        transactions=[parse_transaction(row) for row in data.get("transactions", [])],
     )
     return result
 
@@ -259,8 +261,8 @@ def parse_transaction(data: dict) -> Transaction:
                         data=row["parameter"]["value"].get("data"),
                         is_add_approval=row["parameter"]["value"].get("is_add_approval"),
                         proposal_id=row["parameter"]["value"].get("proposal_id"),
-                        owner_address=row["parameter"]["value"]["owner_address"],
-                        contract_address=row["parameter"]["value"].get("contract_address"),
+                        owner_address=to_base58(row["parameter"]["value"]["owner_address"]),
+                        contract_address=to_base58(row["parameter"]["value"].get("contract_address")) if row["parameter"]["value"].get("contract_address") else None,
                     ),
                     type_url=row["parameter"]["type_url"],
                 ),
