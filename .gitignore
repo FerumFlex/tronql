@@ -1,0 +1,8 @@
+data/
+third_party/
+.venv/
+__pycache__
+.env
+app/data
+k8s/
+router

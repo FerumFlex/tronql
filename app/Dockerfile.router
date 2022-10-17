@@ -1,0 +1,9 @@
+FROM ubuntu:20.04
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install curl -y && \
+    curl -sSL https://router.apollo.dev/download/nix/latest | sh
+
+COPY supergraph.yaml router.yaml supergraph-schema.graphql /app/

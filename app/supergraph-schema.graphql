@@ -1,0 +1,229 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.2", for: EXECUTION)
+{
+  query: Query
+}
+
+directive @join__field(graph: join__Graph!, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+type Account
+  @join__type(graph: NODE)
+{
+  accountName: String!
+  type: String!
+  address: String!
+  balance: Float
+  votes: [AccountVote!]!
+  frozen: [AccountFrozenBalance!]!
+  latestOprationTime: DateTime
+  allowance: Float
+  frozenSupply: [AccountFrozenBalance!]!
+  assetIssuedName: String
+  latestConsumeTime: DateTime
+  latestConsumeFreeTime: DateTime
+  assetV2: [AccountAsset!]!
+  assetIssuedId: String
+  freeAssetNetUsagev2: [AccountAsset!]!
+}
+
+type AccountAsset
+  @join__type(graph: NODE)
+{
+  key: String!
+  value: Float!
+}
+
+type AccountFrozenBalance
+  @join__type(graph: NODE)
+{
+  frozenBalance: Float!
+  expireTime: DateTime!
+}
+
+type AccountResources
+  @join__type(graph: NODE)
+{
+  freeNetLimit: Float!
+  NetLimit: Float
+  assetNetUsed: [AccountAsset!]!
+  assetNetLimit: [AccountAsset!]!
+  TotalNetLimit: Float!
+  TotalNetWeight: Float!
+  tronPowerUsed: Float
+  tronPowerLimit: Float
+  TotalEnergyLimit: Float!
+  TotalEnergyWeight: Float!
+}
+
+type AccountVote
+  @join__type(graph: NODE)
+{
+  voteAddress: String!
+  voteCount: Float!
+}
+
+type Block
+  @join__type(graph: NODE)
+{
+  blockID: String!
+  blockHeader: BlockHeader!
+}
+
+type BlockHeader
+  @join__type(graph: NODE)
+{
+  number: Int!
+  txTrieRoot: String!
+  witnessAddress: String!
+  witnessSignature: String!
+  parentHash: String!
+  version: Int!
+  timestamp: DateTime!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+  @join__type(graph: NODE)
+
+scalar join__FieldSet
+
+enum join__Graph {
+  NODE @join__graph(name: "node", url: "http://tronql-node-nile:3102")
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+type Query
+  @join__type(graph: NODE)
+{
+  validateAddress(address: String!): Boolean!
+  getResources(address: String!): AccountResources
+  getAccount(address: String!): Account
+  getBlock(idOrHash: String!): Block
+  getLatestBlock: Block
+  getBlocks(start: Int!, end: Int!): [Block!]!
+  getTransactionByID(hash: String!): Transaction
+  getTransactionInfoByID(hash: String!): TransactionInfo
+  getTransactionsInfoByBlockNum(num: Int!): [TransactionInfo!]!
+  getWitnesses: [Witnes!]!
+}
+
+type Transaction
+  @join__type(graph: NODE)
+{
+  signature: [String!]!
+  txID: String!
+  ret: [TransactionResult!]!
+  rawData: TransactionRawData!
+  rawDataHex: String!
+}
+
+type TransactionConsume
+  @join__type(graph: NODE)
+{
+  energyFee: Int
+  energyUsageTotal: Int
+  netUsage: Int
+  result: String
+}
+
+type TransactionContract
+  @join__type(graph: NODE)
+{
+  parameter: TransactionContractParameter!
+  type: String!
+}
+
+type TransactionContractParameter
+  @join__type(graph: NODE)
+{
+  value: TransactionContractParameterValue!
+  typeUrl: String!
+}
+
+type TransactionContractParameterValue
+  @join__type(graph: NODE)
+{
+  data: String
+  ownerAddress: String!
+  contractAddress: String
+  isAddApproval: Boolean
+  proposalId: Int
+}
+
+type TransactionInfo
+  @join__type(graph: NODE)
+{
+  id: String!
+  fee: Float
+  blockNumber: Int!
+  blockTimeStamp: DateTime!
+  contractResult: [String!]!
+  contractAddress: String
+  receipt: TransactionConsume!
+  result: String
+  resMessage: String
+  internalTransactions: [TransactionInternal!]!
+}
+
+type TransactionInternal
+  @join__type(graph: NODE)
+{
+  hash: String!
+  callerAddress: String!
+  transferToAddress: String!
+  callValueInfo: [String!]!
+  note: String!
+  rejected: Boolean!
+}
+
+type TransactionRawData
+  @join__type(graph: NODE)
+{
+  refBlockBytes: String!
+  refBlockHash: String!
+  expiration: DateTime!
+  feeLimit: Int
+  timestamp: DateTime!
+  contract: [TransactionContract!]!
+}
+
+type TransactionResult
+  @join__type(graph: NODE)
+{
+  contractRet: String!
+}
+
+type Witnes
+  @join__type(graph: NODE)
+{
+  address: String!
+  voteCount: Float
+  url: String!
+  totalProduced: Int
+  totalMissed: Int
+  latestBlockNum: Int
+  latestSlotNum: Int
+  isJobs: Boolean
+}

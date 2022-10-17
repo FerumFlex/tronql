@@ -1,0 +1,65 @@
+image: docker:19.03.12
+
+stages:
+  - build
+  # - test
+  # - deploy
+  # - release
+
+variables:
+  DOCKER_REGISTRY: registry.gitlab.com/nha3/tronql
+  DOCKER_REGISTRY_TRON: registry.gitlab.com/nha3/tronql/tron-node
+  DOCKER_REGISTRY_ROUTER: registry.gitlab.com/nha3/tronql/tron-router
+
+  DOCKER_HOST: tcp://dockerdind:2375/
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+  AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+  AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+  AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+
+build-tron:
+  rules:
+    - if: '$CI_COMMIT_TAG == null'
+  stage: build
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+  services:
+    - name: docker:19.03.12-dind
+      alias: dockerdind
+  script:
+    - cd nile/
+    - docker build --network host --no-cache -t $DOCKER_REGISTRY_TRON:testnet -t $DOCKER_REGISTRY_TRON:latest .
+    - docker push $DOCKER_REGISTRY_TRON:testnet
+    - docker push $DOCKER_REGISTRY_TRON:latest
+
+build:
+  rules:
+    - if: '$CI_COMMIT_TAG == null'
+  stage: build
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+  services:
+    - name: docker:19.03.12-dind
+      alias: dockerdind
+  script:
+    - cd app
+    - docker build --network host --no-cache -t $DOCKER_REGISTRY:testnet -t $DOCKER_REGISTRY:latest .
+    - docker push $DOCKER_REGISTRY:testnet
+    - docker push $DOCKER_REGISTRY:latest
+
+build-router:
+  rules:
+    - if: '$CI_COMMIT_TAG == null'
+  stage: build
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+  services:
+    - name: docker:19.03.12-dind
+      alias: dockerdind
+  script:
+    - cd app
+    - docker build --network host -f Dockerfile.router -t $DOCKER_REGISTRY_ROUTER:testnet -t $DOCKER_REGISTRY_ROUTER:latest .
+    - docker push $DOCKER_REGISTRY_ROUTER:testnet
+    - docker push $DOCKER_REGISTRY_ROUTER:latest
