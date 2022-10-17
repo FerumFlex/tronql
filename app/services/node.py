@@ -65,3 +65,7 @@ class TronNodeService(BaseService):
     async def get_witnesses(self) -> list[dict]:
         result = await self._request("post", "/wallet/listwitnesses")
         return result["witnesses"]
+
+    async def get_transaction_events(self, hash: str) -> list[dict] | None:
+        result = await self._request("get", f"/v1/transactions/{hash}/events")
+        return result["data"] if result else None

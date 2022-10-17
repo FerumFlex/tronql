@@ -3,6 +3,7 @@ import datetime
 from typing import List, Optional
 
 import strawberry
+from strawberry.scalars import JSON
 import sentry
 from services.node import TronNodeService
 from utils import from_timestamp, to_base58
@@ -165,6 +166,20 @@ class Witnes:
     isJobs: bool | None = None
 
 
+@strawberry.type
+class Event:
+    block_number: int
+    block_timestamp: datetime.datetime
+    caller_contract_address: str
+    contract_address: str
+    event_index: int
+    event_name: str
+    result: JSON
+    result_type: JSON
+    event: str
+    transaction_id: str
+
+
 def parse_block(data: dict) -> Block:
     result = Block(
         blockID=data["blockID"],
@@ -297,6 +312,21 @@ def parse_witness(data: dict) -> Witnes:
     )
 
 
+def parse_event(data: dict) -> Event:
+    return Event(
+        block_number=data["block_number"],
+        block_timestamp=from_timestamp(data["block_timestamp"]),
+        caller_contract_address=data["caller_contract_address"],
+        contract_address=data["contract_address"],
+        event_index=data["event_index"],
+        event_name=data["event_name"],
+        result=data["result"],
+        result_type=data["result_type"],
+        event=data["event"],
+        transaction_id=data["transaction_id"],
+    )
+
+
 @strawberry.type
 class Query:
     @strawberry.field
@@ -367,6 +397,13 @@ class Query:
         async with node_service:
             data = await node_service.get_witnesses()
             return [parse_witness(row) for row in data]
+
+    @strawberry.field
+    async def getTransactionEvents(hash: str) -> List[Event] | None:
+        node_service = TronNodeService()
+        async with node_service:
+            data = await node_service.get_transaction_events(hash)
+            return [parse_event(row) for row in data] if data else None
 
 
 schema = strawberry.federation.Schema(query=Query, enable_federation_2=True)
