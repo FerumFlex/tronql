@@ -55,7 +55,7 @@ class AccountFrozenBalance:
 @strawberry.type
 class Account:
     account_name: str | None = None
-    type: str
+    type: str | None = None
     address: str
     balance: float | None = None
     votes: List[AccountVote]
@@ -214,7 +214,7 @@ def parse_account(data: dict) -> Account:
         latest_consume_time=from_timestamp(data.pop("latest_consume_time")) if "latest_consume_time" in data else None,
         latest_consume_free_time=from_timestamp(data.pop("latest_consume_free_time")) if "latest_consume_free_time" in data else None,
         account_name=data.get("account_name"),
-        type=data["type"],
+        type=data.get("type"),
         address=data["address"],
         balance=data.get("balance"),
         allowance=data.get("allowance"),

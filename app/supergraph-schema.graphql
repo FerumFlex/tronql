@@ -19,7 +19,7 @@ type Account
   @join__type(graph: NODE)
 {
   accountName: String
-  type: String!
+  type: String
   address: String!
   balance: Float
   votes: [AccountVote!]!
