@@ -18,7 +18,7 @@ directive @link(url: String, as: String, for: link__Purpose, import: [link__Impo
 type Account
   @join__type(graph: NODE)
 {
-  accountName: String!
+  accountName: String
   type: String!
   address: String!
   balance: Float
