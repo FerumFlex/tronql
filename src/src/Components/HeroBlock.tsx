@@ -177,15 +177,15 @@ export function HeroBullets() {
           </div>
           <div className={classes.centerColumn}>
             <div className={classes.centerRow}>
-              <img width={48} height={48} alt="Graphql logo" src={graphqlLogo} />
-              <span className={classes.smallTitle}>Graphql</span>
+              <img width={48} height={48} alt="Tron logo" src={tronLogo} />
+              <span className={classes.smallTitle}>Tron</span>
             </div>
             <div className={classes.centerRow}>
               <span className={classes.smallTitle}>+</span>
             </div>
             <div className={classes.centerRow}>
-              <img width={48} height={48} alt="Tron logo" src={tronLogo} />
-              <span className={classes.smallTitle}>Tron</span>
+              <img width={48} height={48} alt="Graphql logo" src={graphqlLogo} />
+              <span className={classes.smallTitle}>Graphql</span>
             </div>
             <div className={classes.centerRow}>
               <span className={classes.smallTitle}>=</span>

@@ -3,8 +3,8 @@ image: docker:19.03.12
 stages:
   - build
   # - test
-  # - deploy
-  # - release
+  - deploy
+  - release
 
 variables:
   DOCKER_REGISTRY: registry.gitlab.com/nha3/tronql
@@ -63,3 +63,28 @@ build-router:
     - docker build --network host -f Dockerfile.router -t $DOCKER_REGISTRY_ROUTER:testnet -t $DOCKER_REGISTRY_ROUTER:latest .
     - docker push $DOCKER_REGISTRY_ROUTER:testnet
     - docker push $DOCKER_REGISTRY_ROUTER:latest
+
+deploy_cdn:
+  stage: deploy
+  image: node:18
+  rules:
+    - if: $CI_COMMIT_TAG
+  before_script:
+    - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    - unzip -q awscliv2.zip
+    - ./aws/install
+  script:
+    - cd src/
+    - npm i
+    - npm run deploy
+
+make_release:
+  image: node:18-buster-slim
+  stage: release
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
+    - npm install -g semantic-release @semantic-release/gitlab
+  script:
+    - semantic-release --plugins @semantic-release/gitlab @semantic-release/release-notes-generator @semantic-release/commit-analyzer
+  only:
+    - master
