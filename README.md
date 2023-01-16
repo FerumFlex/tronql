@@ -22,7 +22,7 @@ kafka-topics.sh --delete --bootstrap-server kafka:9092 --topic solidityevent
 kafka-topics.sh --delete --bootstrap-server kafka:9092 --topic soliditylog
 ```
 
-# Kafka
+# Kafka nile
 
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -33,6 +33,6 @@ helm upgrade --install kafka \
     --set zookeeper.persistence.storageClass=local-storage \
     --set zookeeper.persistence.size=10Gi \
     --set deleteTopicEnable=true \
-    --namespace tronql \
+    --namespace tronql-nile \
     bitnami/kafka
 ```
