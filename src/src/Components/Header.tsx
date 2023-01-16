@@ -61,8 +61,10 @@ export function HeaderSimple({ links }: HeaderSimpleProps) {
       href={link.link}
       className={cx(classes.link, { [classes.linkActive]: active === link.link })}
       onClick={(event) => {
-        event.preventDefault();
-        setActive(link.link);
+        if (! link.link.startsWith("https")) {
+          event.preventDefault();
+          setActive(link.link);
+        }
       }}
     >
       {link.label}
