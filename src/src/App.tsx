@@ -11,12 +11,8 @@ export default function App() {
       "label": "Main"
     },
     {
-      "link": "/api",
-      "label": "Api"
-    },
-    {
-      "link": "/docs",
-      "label": "Docs"
+      "link": "https://api-nile.tronql.com/",
+      "label": "Api - Nile"
     }
   ];
   let footer_data = [
