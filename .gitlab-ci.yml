@@ -85,6 +85,6 @@ make_release:
     - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
     - npm install -g semantic-release @semantic-release/gitlab
   script:
-    - semantic-release --plugins @semantic-release/gitlab @semantic-release/release-notes-generator @semantic-release/commit-analyzer
+    - semantic-release --plugins @semantic-release/gitlab @semantic-release/release-notes-generator @semantic-release/commit-analyzer --branches main
   only:
     - main
