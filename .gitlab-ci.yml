@@ -45,9 +45,8 @@ build-tron:
       alias: dockerdind
   script:
     - cd mainnet/
-    - docker build --network host --no-cache -t $DOCKER_REGISTRY_TRON:mainnet -t $DOCKER_REGISTRY_TRON:latest .
-    - docker push $DOCKER_REGISTRY_TRON:testnet
-    - docker push $DOCKER_REGISTRY_TRON:latest
+    - docker build --network host --no-cache -t $DOCKER_REGISTRY_TRON:mainnet .
+    - docker push $DOCKER_REGISTRY_TRON:mainnet
 
 build:
   rules:
