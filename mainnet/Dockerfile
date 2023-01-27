@@ -24,7 +24,7 @@ RUN set -o errexit -o nounset \
     && git checkout GreatVoyage-v4.7.0.1 \
     && ./gradlew build -x test \
     && cd build/distributions \
-    && unzip -o java-tron-1.0.0.zip \
+    && UNZIP_DISABLE_ZIPBOMB_DETECTION=TRUE unzip -o java-tron-1.0.0.zip \
     && mv java-tron-1.0.0 $BASE_DIR \
     && cd $TMP_DIR && cd .. \
     && rm -rf $TMP_DIR \
