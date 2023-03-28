@@ -1,0 +1,228 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.3", for: EXECUTION)
+{
+  query: Query
+  mutation: Mutation
+}
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+input ChangePasswordFormInput
+  @join__type(graph: AUTH)
+{
+  changeId: String!
+  password: String!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+  @join__type(graph: PROJECTS)
+  @join__type(graph: STATS)
+
+"""Decimal (fixed-point)"""
+scalar Decimal
+  @join__type(graph: PROJECTS)
+
+input ForgotPasswordFormInput
+  @join__type(graph: AUTH)
+{
+  email: String!
+}
+
+scalar join__FieldSet
+
+enum join__Graph {
+  AUTH @join__graph(name: "auth", url: "http://tronql-dashboard-auth:4101/graphql")
+  PROJECTS @join__graph(name: "projects", url: "http://tronql-dashboard-projects:4102/graphql")
+  STATS @join__graph(name: "stats", url: "http://tronql-dashboard-stats:4103/graphql")
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+input LoginFormInput
+  @join__type(graph: AUTH)
+{
+  email: String!
+  password: String!
+}
+
+type LoginInfoResponse
+  @join__type(graph: AUTH)
+{
+  token: String!
+  tokenExpirationInstant: String!
+  refreshToken: String!
+  user: UserResponse!
+}
+
+type Mutation
+  @join__type(graph: AUTH)
+  @join__type(graph: PROJECTS)
+{
+  login(form: LoginFormInput!): LoginInfoResponse! @join__field(graph: AUTH)
+  resendVerifyEmail(form: ResendVerifyEmailInput!): Boolean! @join__field(graph: AUTH)
+  signup(form: SignupFormInput!): SignupInfoResponse! @join__field(graph: AUTH)
+  forgotPassword(form: ForgotPasswordFormInput!): Boolean! @join__field(graph: AUTH)
+  verifyEmail(form: VerifyEmailFormInput!): Boolean! @join__field(graph: AUTH)
+  changePassword(form: ChangePasswordFormInput!): Boolean! @join__field(graph: AUTH)
+  refreshToken(form: RefreshTokenFormInput!): RefreshTokenResponse! @join__field(graph: AUTH)
+  addProject(name: String!): ProjectResponse! @join__field(graph: PROJECTS)
+  deleteProject(projectId: Int!): ProjectResponse! @join__field(graph: PROJECTS)
+  editProject(projectId: Int!, name: String!): ProjectResponse! @join__field(graph: PROJECTS)
+}
+
+type PlanResponse
+  @join__type(graph: PROJECTS)
+{
+  id: Int!
+  slug: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  requestsPerMonth: Int!
+  rateLimit: Int!
+  ratePeriod: Int!
+  title: String
+  description: String
+  visibility: String!
+  price: Decimal
+  currency: String
+}
+
+type ProjectResponse
+  @join__type(graph: PROJECTS, key: "id")
+  @join__type(graph: STATS, key: "id")
+{
+  id: ID!
+  name: String! @join__field(graph: PROJECTS)
+  token: String! @join__field(graph: PROJECTS)
+  userId: String! @join__field(graph: PROJECTS)
+  createdAt: DateTime! @join__field(graph: PROJECTS) @join__field(graph: STATS, external: true)
+  updatedAt: DateTime! @join__field(graph: PROJECTS)
+  plan: PlanResponse! @join__field(graph: PROJECTS)
+  currentStats: ProjectStat! @join__field(graph: STATS, requires: "createdAt")
+}
+
+type ProjectResponsePaginationResponse
+  @join__type(graph: PROJECTS)
+{
+  list: [ProjectResponse!]!
+  count: Int!
+  limit: Int!
+  offset: Int!
+}
+
+type ProjectStat
+  @join__type(graph: STATS)
+{
+  total: Int!
+  begin: DateTime!
+  end: DateTime!
+}
+
+type Query
+  @join__type(graph: AUTH)
+  @join__type(graph: PROJECTS)
+  @join__type(graph: STATS)
+{
+  me: UserResponse! @join__field(graph: AUTH)
+  projects(limit: Int! = 20, offset: Int! = 0): ProjectResponsePaginationResponse! @join__field(graph: PROJECTS)
+  project(projectId: Int!): ProjectResponse! @join__field(graph: PROJECTS)
+  plans: [PlanResponse!]! @join__field(graph: PROJECTS)
+  getStats(projectId: Int!, begin: DateTime!, end: DateTime = null): [StatResponse!]! @join__field(graph: STATS)
+  getTotalStats(projectId: Int!, begin: DateTime!, end: DateTime = null): Int! @join__field(graph: STATS)
+}
+
+input RefreshTokenFormInput
+  @join__type(graph: AUTH)
+{
+  refreshToken: String!
+}
+
+type RefreshTokenResponse
+  @join__type(graph: AUTH)
+{
+  refreshToken: String!
+  token: String!
+}
+
+input ResendVerifyEmailInput
+  @join__type(graph: AUTH)
+{
+  email: String!
+}
+
+input SignupFormInput
+  @join__type(graph: AUTH)
+{
+  email: String!
+  password: String!
+}
+
+type SignupInfoResponse
+  @join__type(graph: AUTH)
+{
+  refreshToken: String!
+  token: String!
+  tokenExpirationInstant: String!
+  user: UserResponse!
+}
+
+type StatResponse
+  @join__type(graph: STATS)
+{
+  projectId: Int!
+  userId: String!
+  date: DateTime!
+  count: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type UserInfoResponse
+  @join__type(graph: AUTH)
+{
+  planSlug: String
+}
+
+type UserResponse
+  @join__type(graph: AUTH)
+{
+  id: String!
+  active: Boolean!
+  verified: Boolean!
+  data: UserInfoResponse
+  email: String!
+  firstName: String
+  lastName: String
+}
+
+input VerifyEmailFormInput
+  @join__type(graph: AUTH)
+{
+  verificationId: String!
+}

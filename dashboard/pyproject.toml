@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "dashboard"
+version = "0.1.0"
+description = ""
+authors = ["Anton.Pomieshchenko <ferumflex@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.92.0"
+uvicorn = {extras = ["standard"], version = "^0.20.0"}
+pydantic = {extras = ["email"], version = "^1.10.7"}
+cognitojwt = {extras = ["async"], version = "^1.4.1"}
+strawberry-graphql = {extras = ["debug-server"], version = "^0.158.2"}
+sqlalchemy = "^2.0.4"
+alembic = "^1.9.4"
+psycopg2-binary = "^2.9.5"
+asyncpg = "^0.27.0"
+aiocache = "^0.12.0"
+fastapi-limiter = "^0.1.5"
+apscheduler = "^3.10.1"
+sentry-sdk = "^1.17.0"
+python-slugify = "^8.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

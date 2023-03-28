@@ -1,11 +1,9 @@
-import datetime
-
-import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.dialects.postgresql import JSONB
-
 import pathlib
 import sys
+
+import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import JSONB
+
 BASE_DIR = pathlib.Path(__file__).parent
 sys.path.append(str(BASE_DIR.parent))
 

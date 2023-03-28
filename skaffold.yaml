@@ -1,0 +1,17 @@
+apiVersion: skaffold/v4beta2
+kind: Config
+metadata:
+  name: tronql
+build:
+  artifacts:
+  - image: dashboard-projects
+    context: dashboard
+    docker:
+      dockerfile: Dockerfile
+  local:
+    push: false
+manifests:
+  rawYaml:
+  - ./deploy/skaffold/deployment.yaml
+deploy:
+  kubectl: {}

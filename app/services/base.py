@@ -1,5 +1,5 @@
-import http
 import asyncio
+import http
 
 import aiohttp
 
@@ -8,17 +8,26 @@ class BaseService:
     base_url = None
     session = None
 
-    def __init__(self, base_url) -> None:
+    def __init__(self, base_url: str, headers: dict = None) -> None:
         self.base_url = base_url
+        self.headers = headers
 
     async def __aenter__(self):
-        self.session = aiohttp.ClientSession(self.base_url)
+        self.session = aiohttp.ClientSession(self.base_url, headers=self.headers)
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         await self.session.close()
 
-    async def _request(self, method, path, data=None, retries=5, headers=None):
+    async def _request(
+        self,
+        method: str,
+        path: str,
+        data: dict = None,
+        retries: int = 5,
+        headers: dict = None,
+        as_json: bool = True,
+    ) -> dict | str:
         async with self.session.request(
             method,
             path,
@@ -28,11 +37,16 @@ class BaseService:
         ) as response:
             try:
                 response.raise_for_status()
-                json_body = await response.json()
-                return json_body
+                if as_json:
+                    return await response.json()
+                else:
+                    return await response.text()
             except aiohttp.ClientResponseError as exc:
                 if retries:
-                    if exc.status == http.HTTPStatus.TOO_MANY_REQUESTS.value and retries:
+                    if (
+                        exc.status == http.HTTPStatus.TOO_MANY_REQUESTS.value
+                        and retries
+                    ):
                         await asyncio.sleep(5)
                     else:
                         await asyncio.sleep(0.4)

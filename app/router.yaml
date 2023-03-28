@@ -4,3 +4,9 @@
 supergraph:
   # The socket address and port to listen on
   listen: 0.0.0.0:4000
+
+headers:
+  all:
+    request:
+      - propagate:
+          named: authorization

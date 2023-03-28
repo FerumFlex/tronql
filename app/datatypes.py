@@ -1,6 +1,5 @@
-from typing import List
-import datetime
 from enum import Enum
+
 import strawberry
 
 

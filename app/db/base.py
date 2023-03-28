@@ -1,14 +1,13 @@
-import datetime
 import contextvars
-from typing import Any, Dict, List, Tuple, Union, Iterator, Optional
+import datetime
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
 import sqlalchemy as sa
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.ext.declarative import declarative_base
-
 from config import settings
 from db.proxy import SessionProxy
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 Model = declarative_base()
 session_context = contextvars.ContextVar("session")
@@ -27,10 +26,16 @@ class Base(Model):
     )
 
     def to_dict(self, exclude: List[str] = []) -> Dict[str, Any]:
-        return {c.key: getattr(self, c.key) for c in sa.inspect(self).mapper.column_attrs if c.key not in exclude}
+        return {
+            c.key: getattr(self, c.key)
+            for c in sa.inspect(self).mapper.column_attrs
+            if c.key not in exclude
+        }
 
     @classmethod
-    async def get_or_create(cls, defaults: Optional[dict] = None, **kwargs) -> Tuple[Model, bool]:
+    async def get_or_create(
+        cls, defaults: Optional[dict] = None, **kwargs
+    ) -> Tuple[Model, bool]:
         if obj := await cls.get(**kwargs):
             return obj, False
 
@@ -43,7 +48,9 @@ class Base(Model):
             if not isinstance(iter_pks, (tuple, list)):
                 iter_pks = (iter_pks,)
 
-            where = {pk.name: cond for pk, cond in zip(cls.__table__.primary_key, iter_pks)}
+            where = {
+                pk.name: cond for pk, cond in zip(cls.__table__.primary_key, iter_pks)
+            }
             kwargs.update(where)
 
         query = sa.select(cls).filter_by(**kwargs)
@@ -76,7 +83,9 @@ class Base(Model):
         if iter_pks is not None:
             if not isinstance(iter_pks, (tuple, list)):
                 iter_pks = [iter_pks]
-            where = {pk.name: cond for pk, cond in zip(cls.__table__.primary_key, iter_pks)}
+            where = {
+                pk.name: cond for pk, cond in zip(cls.__table__.primary_key, iter_pks)
+            }
             kwargs.update(where)
 
         query = sa.select([1]).select_from(cls).filter_by(**kwargs).exists().select()

@@ -1,11 +1,11 @@
 import { HeroBullets } from '../Components/HeroBlock';
-// import { GetInTouchSimple } from '../Components/ContactBlock';
+import { ExampleBlock } from '../Components/ExampleBlock';
 
 export function MainPage() {
   return (
     <>
       <HeroBullets />
-      {/* <GetInTouchSimple /> */}
+      <ExampleBlock />
     </>
   )
 }

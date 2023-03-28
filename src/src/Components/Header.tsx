@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { createStyles, Header, Container, Group, Burger } from '@mantine/core';
+import { Anchor, createStyles, Header, Container, Group, Burger } from '@mantine/core';
+import { Link } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { Logo } from './Logo';
 
@@ -47,7 +48,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface HeaderSimpleProps {
-  links: { link: string; label: string }[];
+  links: { link: string; label: string, target?: string }[];
 }
 
 export function HeaderSimple({ links }: HeaderSimpleProps) {
@@ -56,19 +57,20 @@ export function HeaderSimple({ links }: HeaderSimpleProps) {
   const { classes, cx } = useStyles();
 
   const items = links.map((link) => (
-    <a
+    <Anchor
       key={link.label}
-      href={link.link}
+      to={link.link}
+      component={Link}
+      target={link.target}
       className={cx(classes.link, { [classes.linkActive]: active === link.link })}
       onClick={(event) => {
         if (! link.link.startsWith("https")) {
-          event.preventDefault();
           setActive(link.link);
         }
       }}
     >
       {link.label}
-    </a>
+    </Anchor>
   ));
 
   return (

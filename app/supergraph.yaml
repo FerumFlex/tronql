@@ -1,6 +1,6 @@
-federation_version: 2
+federation_version: =2.3.2
 subgraphs:
   node:
-    routing_url: http://tronql-node-nile:3102
+    routing_url: http://tronql-node:3102/graphql
     schema:
-      subgraph_url: http://tronql-node-nile:3102
+      subgraph_url: http://tronql-node:3102/graphql

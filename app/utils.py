@@ -1,12 +1,17 @@
 import re
-import datetime
+from datetime import datetime
+
 import base58
 
 
-def from_timestamp(value: str | None) -> datetime:
+def from_timestamp(value: str | None) -> datetime | None:
     if not value:
         return None
-    return datetime.datetime.fromtimestamp(int(value) / 1000)
+
+    try:
+        return datetime.fromtimestamp(int(value) / 1000)
+    except ValueError:
+        return None
 
 
 def camel_to_snake_str(name: str) -> str:

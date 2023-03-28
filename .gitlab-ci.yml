@@ -10,6 +10,8 @@ variables:
   DOCKER_REGISTRY: registry.gitlab.com/nha3/tronql
   DOCKER_REGISTRY_TRON: registry.gitlab.com/nha3/tronql/tron-node
   DOCKER_REGISTRY_ROUTER: registry.gitlab.com/nha3/tronql/tron-router
+  DOCKER_REGISTRY_DASHBOARD: registry.gitlab.com/nha3/tronql/tron-dashboard
+  DOCKER_REGISTRY_DASHBOARD_ROUTER: registry.gitlab.com/nha3/tronql/tron-dashboard-router
 
   DOCKER_HOST: tcp://dockerdind:2375/
   DOCKER_DRIVER: overlay2
@@ -19,7 +21,12 @@ variables:
   AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
   AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
 
-# build-tron:
+  REACT_APP_AWS_REGION: $REACT_APP_AWS_REGION
+  REACT_APP_AWS_POOL_ID: $REACT_APP_AWS_POOL_ID
+  REACT_APP_AWS_POOL_CLIENT_ID: $REACT_APP_AWS_POOL_CLIENT_ID
+  REACT_APP_GRAPHQL_ENDPOINT: $REACT_APP_GRAPHQL_ENDPOINT
+
+# build-tron-nile:
 #   rules:
 #     - if: '$CI_COMMIT_TAG == null'
 #   stage: build
@@ -34,24 +41,52 @@ variables:
 #     - docker push $DOCKER_REGISTRY_TRON:testnet
 #     - docker push $DOCKER_REGISTRY_TRON:latest
 
-build-tron:
-  rules:
-    - if: '$CI_COMMIT_TAG == null'
-  stage: build
-  before_script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-  services:
-    - name: docker:19.03.12-dind
-      alias: dockerdind
-  script:
-    - cd mainnet/
-    - docker build --network host --no-cache -t $DOCKER_REGISTRY_TRON:mainnet .
-    - docker push $DOCKER_REGISTRY_TRON:mainnet
+# build-tron:
+#   rules:
+#     - if: $CI_COMMIT_TAG
+#   stage: build
+#   before_script:
+#     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+#   services:
+#     - name: docker:19.03.12-dind
+#       alias: dockerdind
+#   script:
+#     - cd mainnet/
+#     - docker build --network host --no-cache -t $DOCKER_REGISTRY_TRON:mainnet .
+#     - docker push $DOCKER_REGISTRY_TRON:mainnet
+
+# build-nile:
+#   stage: build
+#   only:
+#     - nile
+#   before_script:
+#     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+#   services:
+#     - name: docker:19.03.12-dind
+#       alias: dockerdind
+#   script:
+#     - cd app
+#     - docker build --network host --no-cache -t $DOCKER_REGISTRY:nile .
+#     - docker push $DOCKER_REGISTRY:nile
+
+# build-router-nile:
+#   stage: build
+#   only:
+#     - nile
+#   before_script:
+#     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+#   services:
+#     - name: docker:19.03.12-dind
+#       alias: dockerdind
+#   script:
+#     - cd app
+#     - docker build --network host -f Dockerfile.router -t $DOCKER_REGISTRY_ROUTER:nile .
+#     - docker push $DOCKER_REGISTRY_ROUTER:nile
 
 build:
-  rules:
-    - if: '$CI_COMMIT_TAG == null'
   stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
   before_script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
   services:
@@ -59,14 +94,13 @@ build:
       alias: dockerdind
   script:
     - cd app
-    - docker build --network host --no-cache -t $DOCKER_REGISTRY:testnet -t $DOCKER_REGISTRY:latest .
-    - docker push $DOCKER_REGISTRY:testnet
-    - docker push $DOCKER_REGISTRY:latest
+    - docker build --network host --no-cache -t $DOCKER_REGISTRY:$CI_COMMIT_SHORT_SHA .
+    - docker push $DOCKER_REGISTRY:$CI_COMMIT_SHORT_SHA
 
 build-router:
-  rules:
-    - if: '$CI_COMMIT_TAG == null'
   stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
   before_script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
   services:
@@ -74,9 +108,36 @@ build-router:
       alias: dockerdind
   script:
     - cd app
-    - docker build --network host -f Dockerfile.router -t $DOCKER_REGISTRY_ROUTER:testnet -t $DOCKER_REGISTRY_ROUTER:latest .
-    - docker push $DOCKER_REGISTRY_ROUTER:testnet
-    - docker push $DOCKER_REGISTRY_ROUTER:latest
+    - docker build --network host -f Dockerfile.router -t $DOCKER_REGISTRY_ROUTER:$CI_COMMIT_SHORT_SHA .
+    - docker push $DOCKER_REGISTRY_ROUTER:$CI_COMMIT_SHORT_SHA
+
+build-dashboard-router:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+  services:
+    - name: docker:19.03.12-dind
+      alias: dockerdind
+  script:
+    - cd dashboard
+    - docker build --network host -f Dockerfile.router -t $DOCKER_REGISTRY_DASHBOARD_ROUTER:$CI_COMMIT_SHORT_SHA .
+    - docker push $DOCKER_REGISTRY_DASHBOARD_ROUTER:$CI_COMMIT_SHORT_SHA
+
+build-dashboard:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+  services:
+    - name: docker:19.03.12-dind
+      alias: dockerdind
+  script:
+    - cd dashboard
+    - docker build --network host -f Dockerfile -t $DOCKER_REGISTRY_DASHBOARD:$CI_COMMIT_SHORT_SHA .
+    - docker push $DOCKER_REGISTRY_DASHBOARD:$CI_COMMIT_SHORT_SHA
 
 deploy_cdn:
   stage: deploy
@@ -92,6 +153,30 @@ deploy_cdn:
     - npm i
     - npm run deploy
 
+helm_build:
+  image:
+    name: alpine/helm:3.6.3
+    entrypoint: [""]
+  rules:
+    - if: $CI_COMMIT_TAG
+  stage: build
+  script:
+    - 'sed -i "s/tag: prod/tag: ''$CI_COMMIT_SHORT_SHA''/" k8s/mainnet/values.yaml'
+    - helm package k8s/mainnet/ --version=$CI_COMMIT_TAG
+  artifacts:
+    paths:
+      - tronql-$CI_COMMIT_TAG.tgz
+    expire_in: 6 hours
+
+helm_deploy:
+  image: curlimages/curl:7.81.0
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - echo $CI_COMMIT_TAG
+    - 'curl --request POST --user gitlab-ci-token:$CI_JOB_TOKEN --form "chart=@tronql-$CI_COMMIT_TAG.tgz" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/stable/charts"'
+
 make_release:
   image: node:18-buster-slim
   stage: release
@@ -99,6 +184,6 @@ make_release:
     - apt-get update && apt-get install -y --no-install-recommends git-core ca-certificates
     - npm install -g semantic-release @semantic-release/gitlab
   script:
-    - semantic-release --plugins @semantic-release/gitlab @semantic-release/release-notes-generator @semantic-release/commit-analyzer --branches main
+    - semantic-release --plugins @semantic-release/gitlab @semantic-release/release-notes-generator @semantic-release/commit-analyzer --branches mainnet
   only:
-    - main
+    - mainnet

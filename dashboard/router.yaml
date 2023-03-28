@@ -1,0 +1,28 @@
+include_subgraph_errors:
+  all: true
+
+supergraph:
+  listen: 0.0.0.0:4100
+
+headers:
+  all:
+    request:
+      - remove:
+          named: "x-current-user"
+      - propagate:
+          matching: .*
+
+plugins:
+  experimental.external:
+    url: http://tronql-dashboard-auth:4101/login
+    timeout: 10s
+    stages:
+      router:
+        request:
+          headers: true
+          context: true
+
+cors:
+  origins:
+    - http://localhost:3000
+    - https://tronql.com

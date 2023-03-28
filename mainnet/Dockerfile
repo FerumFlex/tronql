@@ -21,7 +21,7 @@ RUN set -o errexit -o nounset \
     && cd $TMP_DIR \
     && git clone https://github.com/tronprotocol/java-tron.git \
     && cd java-tron \
-    && git checkout GreatVoyage-v4.7.0.1 \
+    && git checkout GreatVoyage-v4.7.1 \
     && ./gradlew build -x test \
     && cd build/distributions \
     && UNZIP_DISABLE_ZIPBOMB_DETECTION=TRUE unzip -o java-tron-1.0.0.zip \
@@ -41,13 +41,12 @@ RUN set -o errexit -o nounset \
     && rm -rf $JAVA_HOME \
     && yum clean all
 
-RUN wget -P $BASE_DIR/config https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/main_net_config.conf
-
 ENV JAVA_HOME="/usr/local/jre"
 ENV PATH=$PATH:$JAVA_HOME/bin
 
+COPY main_net_config.conf /java-tron/config/
 COPY docker-entrypoint.sh $BASE_DIR/bin
-COPY logback.xml /java-tron/config/logback.xml
+COPY logback.xml /java-tron/config
 
 WORKDIR $BASE_DIR
 

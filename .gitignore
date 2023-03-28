@@ -4,5 +4,6 @@ third_party/
 __pycache__
 .env
 app/data
-k8s/
 router
+.env*
+deploy/
