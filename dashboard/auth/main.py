@@ -5,7 +5,9 @@ from auth.config import settings
 from auth.graphql import Mutation, Query
 from common.context import get_user_context
 from db.base import init_db
+from db.helpers import health_check
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from strawberry.fastapi import GraphQLRouter
 
 schema = strawberry.federation.Schema(
@@ -21,5 +23,14 @@ app.include_router(router)
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup():
     await init_db(settings.database_url)
+
+
+@app.get("/health")
+async def health_check_endpoint():
+    result = await health_check()
+    return JSONResponse(
+        {"status": "ok" if result else "error"},
+        status_code=200 if result else 500,
+    )

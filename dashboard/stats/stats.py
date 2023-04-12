@@ -44,3 +44,6 @@ class Stats:
                 Stat(user_id=user_id, project_id=project_id, date=date, count=count)
             )
         return result
+
+    async def check_health(self) -> bool:
+        return await self._redis.execute_command("PING")

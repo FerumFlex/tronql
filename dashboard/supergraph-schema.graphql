@@ -153,7 +153,7 @@ type Query
   projects(limit: Int! = 20, offset: Int! = 0): ProjectResponsePaginationResponse! @join__field(graph: PROJECTS)
   project(projectId: Int!): ProjectResponse! @join__field(graph: PROJECTS)
   plans: [PlanResponse!]! @join__field(graph: PROJECTS)
-  getStats(projectId: Int!, begin: DateTime!, end: DateTime = null): [StatResponse!]! @join__field(graph: STATS)
+  getStats(projectId: Int!, begin: DateTime!, end: DateTime = null, group: StatsGroup! = hour): [StatResponse!]! @join__field(graph: STATS)
   getTotalStats(projectId: Int!, begin: DateTime!, end: DateTime = null): Int! @join__field(graph: STATS)
 }
 
@@ -195,12 +195,15 @@ type SignupInfoResponse
 type StatResponse
   @join__type(graph: STATS)
 {
-  projectId: Int!
-  userId: String!
   date: DateTime!
   count: Int!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+}
+
+enum StatsGroup
+  @join__type(graph: STATS)
+{
+  hour @join__enumValue(graph: STATS)
+  day @join__enumValue(graph: STATS)
 }
 
 type UserInfoResponse

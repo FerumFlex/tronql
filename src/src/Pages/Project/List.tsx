@@ -85,7 +85,7 @@ export function ProjectsPage() {
           </td>
           <td>
             <Group spacing={0} position="right">
-              <ActionIcon onClick={() => openDeleteDialog(row.id)} color="red">
+              <ActionIcon onClick={() => openDeleteDialog(parseInt(row.id))} color="red">
                 <IconTrash size={16} stroke={1.5} />
               </ActionIcon>
             </Group>

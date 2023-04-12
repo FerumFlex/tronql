@@ -33,3 +33,12 @@ compose:
 
 run:
 	APOLLO_GRAPH_REF=1 ../bin/router --dev --config router.yaml --supergraph supergraph-schema.graphql --hot-reload --apollo-uplink-poll-interval 10s --anonymous-telemetry-disabled --apollo-uplink-endpoints projects --apollo-uplink-timeout 5s
+
+# testing
+test:
+	set -o allexport; source .env.testing; set +o allexport; . .venv/bin/activate; pytest $(filter-out $@,$(MAKECMDGOALS))
+
+reqs:
+	poetry export --without-hashes > requirements.txt
+	poetry export --with dev --without-hashes > dev-requirements.txt
+	. .venv/bin/activate; pip3 install -r dev-requirements.txt

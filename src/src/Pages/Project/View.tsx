@@ -12,14 +12,28 @@ import { ProjectInfo } from "../../Components/Projects/ProjectInfo";
 import { Link } from "react-router-dom";
 import { useStyles } from "../../styles";
 import { DateTime } from "luxon";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 
 export function ProjectViewPage () {
-  const end = DateTime.now();
   let { projectId } = useParams();
   const { classes } = useStyles();
   const [newName, setNewName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const STATS_DAYS = 30;
+
+  const now = DateTime.now().set({minute: 0, second: 0, millisecond: 0});
+  const begin = now.minus({ day: 1 });
+  const end = now;
+  const begin2 = now.minus({ day: STATS_DAYS });
+  let formatter = Intl.NumberFormat('en', { notation: 'compact' });
+
+  const dateFormatter = (date: number) => {
+    return DateTime.fromMillis(date).toFormat('D HH:mm');
+  };
+  const valueFormatter = (value: number) => {
+    return formatter.format(value);
+  };
 
   const [editProject, editData] = useMutation(EDIT_PROJECT, {
     refetchQueries: [
@@ -27,8 +41,9 @@ export function ProjectViewPage () {
         query: GET_PROJECT,
         variables: {
           projectId: parseInt(projectId || ""),
-          begin: end.minus({ months: 1 }).toISODate() ,
-          end: end.toISODate()
+          begin: begin.toISO(),
+          end: end.toISO(),
+          begin2: begin2.toISO()
         }
       }
     ],
@@ -41,8 +56,9 @@ export function ProjectViewPage () {
   const { loading, error, data } = useQuery(GET_PROJECT, {
     variables: {
       projectId: parseInt(projectId || ""),
-      begin: end.minus({ months: 1 }).toISODate() ,
-      end: end.toISODate()
+      begin: begin.toISO() ,
+      end: end.toISO(),
+      begin2: begin2.toISO()
     }
   });
 
@@ -79,17 +95,25 @@ export function ProjectViewPage () {
     </Anchor>,
   ];
 
-  const url = "https://mainnet.tron.tronql.com/";
+  const domain = "mainnet.tron.tronql.com";
   let code = "";
+  let code2 = "";
   let graph = [];
+  let graphDay = [];
   if (data) {
-    code = `curl --location --request POST '${url}wallet/getnowblock' --header 'Authorization: ${data.project.token}'`;
+    code = `curl --location --request POST 'https://${domain}/wallet/getnowblock' --header 'Authorization: ${data.project.token}'`;
+    code2 = `curl --location --request POST 'https://${data.project.token}.${domain}/wallet/getnowblock'`;
 
-    for (var i in data.getStats) {
-      let row = data.getStats[i];
+    for (let row of data.getStats) {
       graph.push({
-        "x": row["date"].replace("T", " ").replace("+00:00", ".000"),
-        "y": row["count"]
+        "name": DateTime.fromISO(row["date"]).toMillis(),
+        "count": row["count"]
+      })
+    }
+    for (let row of data.dayStats) {
+      graphDay.push({
+        "name": DateTime.fromISO(row["date"]).toMillis(),
+        "count": row["count"]
       })
     }
   }
@@ -132,7 +156,7 @@ export function ProjectViewPage () {
               </Card>
               <SimpleGrid cols={2} mb={20}>
                 <Card withBorder mt={30} p={10} radius="md">
-                  <ProjectInfo apiUrl={url} project={data.project} />
+                  <ProjectInfo apiUrl={`https://${domain}/`} project={data.project} />
                 </Card>
                 <Card mt={30} p={10} radius="md">
                   <ProjectStats
@@ -145,10 +169,42 @@ export function ProjectViewPage () {
                 </Card>
               </SimpleGrid>
               <Card mb={20}>
-                <Text fz="xl" className={classes.label}>
+                <Text fz="xl" mb={30} className={classes.label}>
                   Example of request
                 </Text>
-                <Prism language="bash">{code}</Prism>
+                <Prism mb={30} language="bash">{code}</Prism>
+                <Text mb={30} fz="xl" className={classes.label}>
+                  Or another variant. Using token in domain
+                </Text>
+                <Prism language="bash">{code2}</Prism>
+              </Card>
+              <Card mb={20}>
+                <Text fz="xl" mb={30} className={classes.label}>
+                  Stats for last 24 hours
+                </Text>
+                <ResponsiveContainer height={200}>
+                  <LineChart data={graph}>
+                    <CartesianGrid strokeDasharray="1 5" />
+                    <XAxis dataKey="name" tickFormatter={dateFormatter} type="number" domain={[begin.toMillis(), end.toMillis()]} />
+                    <YAxis tickFormatter={valueFormatter} />
+                    <Tooltip labelFormatter={dateFormatter} />
+                    <Line type="monotone" dataKey="count" stroke="#82ca9d" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Card>
+              <Card mb={20}>
+                <Text fz="xl" mb={30} className={classes.label}>
+                  Stats for last {STATS_DAYS} days
+                </Text>
+                <ResponsiveContainer height={200}>
+                  <LineChart data={graphDay}>
+                    <CartesianGrid strokeDasharray="1 5" />
+                    <XAxis dataKey="name" tickFormatter={dateFormatter} type="number" domain={[begin.toMillis(), end.toMillis()]} />
+                    <YAxis tickFormatter={valueFormatter} />
+                    <Tooltip labelFormatter={dateFormatter} />
+                    <Line type="monotone" dataKey="count" stroke="#82ca9d" />
+                  </LineChart>
+                </ResponsiveContainer>
               </Card>
             </>
           )}

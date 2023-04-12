@@ -40,6 +40,11 @@ export const App = observer(() => {
       "link": "https://docs.tronql.com/",
       "label": "Docs",
       "target": "_blank"
+    },
+    {
+      "link": "https://api.tron.tronql.com/",
+      "label": "Graphql docs",
+      "target": "_blank"
     }
   ];
   let footer_data = [
@@ -49,24 +54,7 @@ export const App = observer(() => {
     }
   ];
 
-  let [refreshToken] = useMutation(REFRESH_TOKEN, {
-    variables: {
-      form: {
-        refreshToken: localStorage.getItem("refreshToken"),
-      }
-    },
-    refetchQueries: [{query: ME}],
-    onCompleted: (data: any) => {
-      localStorage.setItem("token", data.refreshToken.token.toString());
-      localStorage.setItem("refreshToken", data.refreshToken.refreshToken.toString());
-    },
-    onError: () => {
-      user.logOut();
-      user.setData(null);
-    }
-  });
-
-  useQuery(ME, {
+  const meQuery = useQuery(ME, {
     onCompleted: (data: any) => {
       user.setData(data.me);
     },
@@ -80,12 +68,31 @@ export const App = observer(() => {
     }
   });
 
+  let [refreshToken] = useMutation(REFRESH_TOKEN, {
+    variables: {
+      form: {
+        refreshToken: localStorage.getItem("refreshToken"),
+      }
+    },
+    onCompleted: (data: any) => {
+      localStorage.setItem("token", data.refreshToken.token.toString());
+      localStorage.setItem("refreshToken", data.refreshToken.refreshToken.toString());
+      meQuery.refetch();
+    },
+    onError: () => {
+      user.logOut();
+      user.setData(null);
+    }
+  });
+
   return (
     <ThemeProvider>
-      <Routes>
-        <Route path="/dashboard/*" element={<DashboardLayout header_links={header_links} footer_data={footer_data} all_classes={classes} />}></Route>
-        <Route path="*" element={<MainLayout header_links={header_links} footer_data={footer_data} all_classes={classes} />}></Route>
-      </Routes>
+      {!user.isLoading && (
+        <Routes>
+          <Route path="/dashboard/*" element={<DashboardLayout header_links={header_links} footer_data={footer_data} all_classes={classes} />}></Route>
+          <Route path="*" element={<MainLayout header_links={header_links} footer_data={footer_data} all_classes={classes} />}></Route>
+        </Routes>
+      )}
     </ThemeProvider>
   );
 });

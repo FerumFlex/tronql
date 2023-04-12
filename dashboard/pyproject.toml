@@ -22,7 +22,30 @@ apscheduler = "^3.10.1"
 sentry-sdk = "^1.17.0"
 python-slugify = "^8.0.1"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.3.0"
+pytest-cov = "^4.0.0"
+pytest-asyncio = "^0.21.0"
+httpx = "^0.23.3"
+factory-boy = "^3.2.1"
+httpx-auth = "^0.15.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+branch = true
+source = ["auth/", "common/", "db/", "projects/", "services/", "stats/"]
+
+[tool.coverage.paths]
+source = ["auth/", "common/", "db/", "projects/", "services/", "stats/"]
+
+[tool.coverage.report]
+fail_under = 10
+skip_covered = true
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = "-vv --cov --cov-report xml --cov-report term-missing --disable-pytest-warnings"
+asyncio_mode = "auto"

@@ -1,5 +1,5 @@
 import { createStyles, Anchor, Text, Container, ActionIcon, Group } from '@mantine/core';
-import { IconBrandTwitter, IconBrandTelegram } from '@tabler/icons';
+import { IconBrandTwitter, IconBrandTelegram, IconBrandYoutube, IconBrandDiscord } from '@tabler/icons';
 import { Logo } from './Logo';
 
 const useStyles = createStyles((theme) => ({
@@ -156,10 +156,13 @@ export function FooterLinks({ data }: FooterLinksProps) {
           <ActionIcon size="lg" component="a" href="https://t.me/tronql" target={"_blank"}>
             <IconBrandTelegram size={18} stroke={1.5} />
           </ActionIcon>
-          {/*
-          <ActionIcon size="lg">
+          <ActionIcon size="lg" component="a" href="https://www.youtube.com/@tronql" target={"_blank"}>
             <IconBrandYoutube size={18} stroke={1.5} />
           </ActionIcon>
+          <ActionIcon size="lg" component="a" href="https://discord.gg/fESkc85C" target={"_blank"}>
+            <IconBrandDiscord size={18} stroke={1.5} />
+          </ActionIcon>
+          {/*
           <ActionIcon size="lg">
             <IconBrandInstagram size={18} stroke={1.5} />
           </ActionIcon>

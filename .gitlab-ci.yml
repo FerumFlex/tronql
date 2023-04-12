@@ -2,7 +2,7 @@ image: docker:19.03.12
 
 stages:
   - build
-  # - test
+  - test
   - deploy
   - release
 
@@ -86,7 +86,7 @@ variables:
 build:
   stage: build
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: '$CI_COMMIT_TAG == null'
   before_script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
   services:
@@ -128,7 +128,7 @@ build-dashboard-router:
 build-dashboard:
   stage: build
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: '$CI_COMMIT_TAG == null'
   before_script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
   services:
@@ -187,3 +187,30 @@ make_release:
     - semantic-release --plugins @semantic-release/gitlab @semantic-release/release-notes-generator @semantic-release/commit-analyzer --branches mainnet
   only:
     - mainnet
+
+test-dashboard:
+  image: $DOCKER_REGISTRY_DASHBOARD:$CI_COMMIT_SHORT_SHA
+  rules:
+    - if: '$CI_COMMIT_TAG == null'
+  stage: test
+  variables:
+    POSTGRESQL_PASSWORD: tronql
+    POSTGRES_DB: tronql
+    POSTGRES_USER: tronql
+    POSTGRES_PASSWORD: tronql
+    DATABASE_URL: postgresql+asyncpg://tronql:tronql@postgresql:5432/tronql
+    FUSION_API_KEY: skladfj;alskdjf;alskdjf
+    FUSION_API_URL: http://fusionauth.localhost
+    FUSION_APP_ID: 0507d222-5c4c-43df-bf8c-1650f3e58383
+    REDIS_URL: redis://redis
+  services:
+    - name: bitnami/postgresql:14.4.0
+      alias: postgresql
+    - name: bitnami/redis:6.0.9
+      alias: redis
+  before_script:
+    - /opt/venv/bin/pip install --no-cache-dir -r ./dashboard/dev-requirements.txt
+  script:
+    - cd dashboard/
+    - pytest
+  coverage: '/Total coverage\: (\d+\.\d+\%)/'

@@ -33,7 +33,8 @@ class PlanResponse:
 
 async def load_plans(keys: list[int]) -> list[PlanResponse]:
     rows = await plan_repository.get_by_ids(keys)
-    return [PlanResponse.from_db(row) for row in rows]
+    mapping = {row.id: PlanResponse.from_db(row) for row in rows if row}
+    return [mapping.get(key) for key in keys]
 
 
 PLAN_LOADER = DataLoader(load_fn=load_plans)

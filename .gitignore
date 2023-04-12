@@ -7,3 +7,5 @@ app/data
 router
 .env*
 deploy/
+.coverage
+coverage.xml
