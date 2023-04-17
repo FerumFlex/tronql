@@ -95,14 +95,17 @@ export function ProjectViewPage () {
     </Anchor>,
   ];
 
-  const domain = "mainnet.tron.tronql.com";
   let code = "";
   let code2 = "";
   let graph = [];
   let graphDay = [];
   if (data) {
-    code = `curl --location --request POST 'https://${domain}/wallet/getnowblock' --header 'Authorization: ${data.project.token}'`;
-    code2 = `curl --location --request POST 'https://${data.project.token}.${domain}/wallet/getnowblock'`;
+    if (data.project.network.slug.startsWith("tron")) {
+      code = `curl --location --request POST 'https://${data.project.network.domain}/wallet/getnowblock' --header 'Authorization: ${data.project.token}'`;
+    } else {
+      code = `curl --location --request GET 'https://${data.project.network.domain}/status' --header 'Authorization: ${data.project.token}'`;
+    }
+    code2 = `curl --location --request POST 'https://${data.project.token}.${data.project.network.domain}/wallet/getnowblock'`;
 
     for (let row of data.getStats) {
       graph.push({
@@ -156,7 +159,7 @@ export function ProjectViewPage () {
               </Card>
               <SimpleGrid cols={2} mb={20}>
                 <Card withBorder mt={30} p={10} radius="md">
-                  <ProjectInfo apiUrl={`https://${domain}/`} project={data.project} />
+                  <ProjectInfo apiUrl={`https://${data.project.network.domain}/`} project={data.project} />
                 </Card>
                 <Card mt={30} p={10} radius="md">
                   <ProjectStats
@@ -173,10 +176,14 @@ export function ProjectViewPage () {
                   Example of request
                 </Text>
                 <Prism mb={30} language="bash">{code}</Prism>
-                <Text mb={30} fz="xl" className={classes.label}>
-                  Or another variant. Using token in domain
-                </Text>
-                <Prism language="bash">{code2}</Prism>
+                {data.project.network.headerInDomain && (
+                  <>
+                    <Text mb={30} fz="xl" className={classes.label}>
+                      Or another variant. Using token in domain
+                    </Text>
+                    <Prism language="bash">{code2}</Prism>
+                  </>
+                )}
               </Card>
               <Card mb={20}>
                 <Text fz="xl" mb={30} className={classes.label}>

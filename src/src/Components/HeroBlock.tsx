@@ -9,8 +9,8 @@ const useStyles = createStyles((theme) => ({
   inner: {
     display: 'flex',
     justifyContent: 'space-between',
-    paddingTop: theme.spacing.xl * 4,
-    paddingBottom: theme.spacing.xl * 4,
+    paddingTop: theme.spacing.xl,
+    paddingBottom: theme.spacing.xl,
   },
 
   centerRow: {

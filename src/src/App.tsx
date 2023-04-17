@@ -14,7 +14,7 @@ import { REFRESH_TOKEN } from "./graphql/mutations";
 const useStyles = createStyles((theme) => ({
   content: {
     maxWidth: 1200,
-    marginRight: theme.spacing.xl * 3,
+    marginRight: theme.spacing.xl,
 
     [theme.fn.smallerThan('md')]: {
       maxWidth: '100%',

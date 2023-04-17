@@ -16,7 +16,7 @@ const useStyles = createStyles((theme) => ({
   },
 
   itemTitle: {
-    marginBottom: theme.spacing.xs / 2,
+    marginBottom: theme.spacing.xs,
   },
 
   supTitle: {

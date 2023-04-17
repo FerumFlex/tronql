@@ -30,3 +30,4 @@ class Project(Base):
     user_id = sa.Column(sa.String(100), nullable=False)
 
     plan_id = sa.Column(sa.Integer, sa.ForeignKey(Plan.id), nullable=False)
+    network_slug = sa.Column(sa.String(40), nullable=False)

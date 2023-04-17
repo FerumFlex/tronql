@@ -36,7 +36,7 @@ class ProjectRepository:
             return project
 
     async def create(
-        self, user_id: str, plan_id: int, name: str, token: str
+        self, user_id: str, plan_id: int, name: str, token: str, network_slug: str
     ) -> Project:
         async with session_manager():
             data = {
@@ -44,6 +44,7 @@ class ProjectRepository:
                 "user_id": user_id,
                 "token": token,
                 "plan_id": plan_id,
+                "network_slug": network_slug,
             }
             project = await Project.create(**data)
             return project

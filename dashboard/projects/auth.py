@@ -71,6 +71,7 @@ async def get_project_plan_by_token(token: str) -> tuple[Project | None, Plan | 
 @app.post("/{path}/{path2}/{path3}")
 async def auth(
     request: Request,
+    x_network_id: str | None = Header(default=None),
     host: str | None = Header(default=None),
     authorization: str | None = Header(default=None),
     tron_pro_api_key: str | None = Header(default=None),
@@ -87,6 +88,8 @@ async def auth(
         raise HTTPException(status_code=403, detail="wrong auth token")
     if not plan:
         raise HTTPException(status_code=500, detail="plan for project does not exist")
+    if x_network_id and project.network_slug != x_network_id:
+        raise HTTPException(status_code=403, detail="wrong network id")
 
     limiter = RateLimiter(
         times=plan.rate_limit, seconds=plan.rate_period, identifier=token_identifier

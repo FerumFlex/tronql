@@ -24,8 +24,8 @@ export const DELETE_PROJECT = gql`
 
 
 export const ADD_PROJECT = gql`
-  mutation addProject($name: String!) {
-    addProject(name: $name) {
+  mutation addProject($name: String!, $networkSlug: String!) {
+    addProject(name: $name, networkSlug: $networkSlug) {
       id
       token
       name

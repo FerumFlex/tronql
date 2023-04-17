@@ -36,10 +36,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.coverage.run]
 branch = true
-source = ["auth/", "common/", "db/", "projects/", "services/", "stats/"]
+source = ["auth/", "common/", "db/", "projects/", "services/", "stats/", "networks/"]
 
 [tool.coverage.paths]
-source = ["auth/", "common/", "db/", "projects/", "services/", "stats/"]
+source = ["auth/", "common/", "db/", "projects/", "services/", "stats/", "networks/"]
 
 [tool.coverage.report]
 fail_under = 10

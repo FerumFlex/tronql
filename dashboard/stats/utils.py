@@ -6,7 +6,7 @@ def round_hour_datetime(value: datetime) -> datetime:
     return value.replace(second=0, microsecond=0, minute=0)
 
 
-def get_current_biling_period(created: datetime) -> (datetime, datetime):
+def get_current_biling_period(created: datetime) -> tuple[datetime, datetime]:
     now = datetime.now(timezone.utc)
     billing_cycle = now.replace(hour=0, minute=0, second=0, microsecond=0)
 

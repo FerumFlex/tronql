@@ -7,9 +7,9 @@ from projects.repository import plan_repository
 from strawberry.dataloader import DataLoader
 
 
-@strawberry.type
+@strawberry.federation.type(keys=["id"])
 class PlanResponse:
-    id: int
+    id: strawberry.ID
     slug: str
 
     created_at: datetime
@@ -40,6 +40,11 @@ async def load_plans(keys: list[int]) -> list[PlanResponse]:
 PLAN_LOADER = DataLoader(load_fn=load_plans)
 
 
+@strawberry.federation.type(keys=["slug"])
+class NetworkResponse:
+    slug: strawberry.ID
+
+
 @strawberry.federation.type(keys=["id"])
 class ProjectResponse:
     id: strawberry.ID
@@ -48,7 +53,13 @@ class ProjectResponse:
     user_id: str
     created_at: datetime
     updated_at: datetime
+
     plan_id: strawberry.Private[int]
+    network_slug: strawberry.Private[str]
+
+    @strawberry.field
+    async def network(self) -> NetworkResponse:
+        return NetworkResponse(slug=self.network_slug)
 
     @strawberry.field
     async def plan(self) -> PlanResponse:

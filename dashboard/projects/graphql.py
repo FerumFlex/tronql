@@ -40,7 +40,9 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.mutation(permission_classes=[IsAuthenticated])
-    async def add_project(self, name: str, info: Info) -> ProjectResponse:
+    async def add_project(
+        self, name: str, network_slug: str, info: Info
+    ) -> ProjectResponse:
         if len(name) < 3:
             raise ValidationError("Name should be greater than 3 chars")
 
@@ -54,6 +56,7 @@ class Mutation:
             name=name,
             token=generate_token(),
             plan_id=plan.id,
+            network_slug=network_slug,
         )
         return ProjectResponse.from_db(project)
 

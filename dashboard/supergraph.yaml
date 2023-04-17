@@ -1,5 +1,10 @@
 federation_version: =2.3.2
 subgraphs:
+  auth:
+    routing_url: http://tronql-dashboard-auth:4101/graphql
+    schema:
+      subgraph_url: http://tronql-dashboard-auth:4101/graphql
+
   projects:
     routing_url: http://tronql-dashboard-projects:4102/graphql
     schema:
@@ -10,7 +15,7 @@ subgraphs:
     schema:
       subgraph_url: http://tronql-dashboard-stats:4103/graphql
 
-  auth:
-    routing_url: http://tronql-dashboard-auth:4101/graphql
+  networks:
+    routing_url: http://tronql-dashboard-networks:4104/graphql
     schema:
-      subgraph_url: http://tronql-dashboard-auth:4101/graphql
+      subgraph_url: http://tronql-dashboard-networks:4104/graphql

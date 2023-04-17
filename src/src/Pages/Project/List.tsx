@@ -1,13 +1,46 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { DateTime } from "luxon";
 
-import { Badge, Table, TextInput, Card, Container, Modal, Text, Button, Anchor, ScrollArea, Group, ActionIcon, Skeleton } from '@mantine/core';
+import { rem, Progress, Center, createStyles, Badge, SegmentedControl, Table, TextInput, Card, Container, Modal, Text, Button, Anchor, ScrollArea, Group, ActionIcon, Skeleton, FocusTrap } from '@mantine/core';
 import { IconTrash } from '@tabler/icons';
 import { GET_PROJECTS } from '../../graphql/queries';
 import { DELETE_PROJECT, ADD_PROJECT } from '../../graphql/mutations';
 import { Error } from '../../Components/Error';
 import { Link } from 'react-router-dom';
+
+
+const useStyles = createStyles((theme) => ({
+  root: {
+    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
+    boxShadow: theme.shadows.md,
+    border: `${rem(1)} solid ${
+      theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[1]
+    }`,
+  },
+
+  indicator: {
+    backgroundImage: theme.fn.gradient({ from: 'pink', to: 'orange' }),
+  },
+
+  control: {
+    border: '0 !important',
+  },
+
+  label: {
+    '&, &:hover': {
+      '&[data-active]': {
+        color: theme.white,
+      },
+    },
+  },
+  progressBar: {
+    '&:not(:first-of-type)': {
+      borderLeft: `${rem(3)} solid ${
+        theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white
+      }`,
+    },
+  },
+}));
 
 
 export function ProjectsPage() {
@@ -28,6 +61,8 @@ export function ProjectsPage() {
   const [deleteProjectId, setDeleteProjectId] = useState(0);
   const [addProjectOpened, setAddProjectOpened] = useState(false);
   const [projectName, setProjectName] = useState("");
+  const [network, setNetwork] = useState("tron-mainnet");
+  const { classes, theme } = useStyles();
   let rows = null;
 
   const openDeleteDialog = (projectId: number) => {
@@ -57,7 +92,8 @@ export function ProjectsPage() {
   const doCreateProject = () => {
     addProject({
       variables: {
-        name: projectName
+        name: projectName,
+        networkSlug: network
       }
     });
   };
@@ -72,8 +108,14 @@ export function ProjectsPage() {
     }
   };
 
+  const setNetworkEvent = (value: string) => {
+    setNetwork(value);
+  };
+
+  let networks = [];
   if (data) {
     rows = data.projects.list.map((row: any) => {
+      let totalUsedPercent = (row.currentStats.total / row.plan.requestsPerMonth) * 100;
       return (
         <tr key={row.id}>
           <td><Anchor component={Link} to={`/dashboard/project/${row.id}`}>{row.name}</Anchor></td>
@@ -81,7 +123,22 @@ export function ProjectsPage() {
             <Badge color={"green"}>{row.plan.slug}</Badge> {row.plan.requestsPerMonth.toLocaleString()} reqs/month.
           </td>
           <td>
-            {DateTime.fromISO(row.createdAt).toLocaleString(DateTime.DATETIME_MED)}
+            <Badge color={"blue"} title={row.network.title}>{row.network.slug}</Badge>
+          </td>
+          <td>
+            <Progress
+              classNames={{ bar: classes.progressBar }}
+              sections={[
+                {
+                  value: totalUsedPercent,
+                  color: theme.colorScheme === 'dark' ? theme.colors.red[9] : theme.colors.red[6],
+                },
+                {
+                  value: 100 - totalUsedPercent,
+                  color: theme.colorScheme === 'dark' ? theme.colors.teal[9] : theme.colors.teal[6],
+                },
+              ]}
+            />
           </td>
           <td>
             <Group spacing={0} position="right">
@@ -93,6 +150,12 @@ export function ProjectsPage() {
         </tr>
       );
     });
+    for (let row of data.networks) {
+      networks.push({
+        "label": row.title,
+        "value": row.slug
+      });
+    }
   }
   return (
     <ScrollArea>
@@ -112,11 +175,25 @@ export function ProjectsPage() {
       </Modal>
 
       <Modal opened={addProjectOpened} title="Add new project" withCloseButton onClose={closeAddProjectDialog} size="lg" radius="md">
-        <Error text={addData?.error?.toString()} />
-        <Group align="flex-end">
-          <TextInput autoFocus onKeyDown={maybeSubmit} required sx={{ flex: 1 }} onChange={doSetProjectName} value={projectName} />
-          <Button color={"green"} loading={addData.loading} onClick={doCreateProject}>Add</Button>
-        </Group>
+        <FocusTrap active={addProjectOpened}>
+          <Error text={addData?.error?.toString()} />
+          <Center>
+            <SegmentedControl
+              onChange={setNetworkEvent}
+              value={network}
+              mt="xl"
+              mb="xl"
+              radius="xl"
+              size="md"
+              data={networks}
+              classNames={classes}
+            />
+          </Center>
+          <Group align="flex-end">
+            <TextInput data-autofocus autoFocus onKeyDown={maybeSubmit} required sx={{ flex: 1 }} onChange={doSetProjectName} value={projectName} />
+            <Button color={"green"} loading={addData.loading} onClick={doCreateProject}>Add</Button>
+          </Group>
+        </FocusTrap>
       </Modal>
 
       { loading ? (
@@ -137,7 +214,8 @@ export function ProjectsPage() {
                   <tr>
                     <th>Name</th>
                     <th>Plan</th>
-                    <th>Created At</th>
+                    <th>Network</th>
+                    <th>Used stats</th>
                     <th></th>
                   </tr>
                 </thead>

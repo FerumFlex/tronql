@@ -19,12 +19,12 @@ RUN set -o errexit -o nounset \
     && echo "git clone" \
     && mkdir -p $TMP_DIR \
     && cd $TMP_DIR \
-    && git clone https://github.com/FerumFlex/java-tron.git \
+    && git clone https://github.com/tronprotocol/java-tron.git \
     && cd java-tron \
-    && git checkout Nile \
+    && git checkout GreatVoyage-v4.7.1 \
     && ./gradlew build -x test \
     && cd build/distributions \
-    && unzip -o java-tron-1.0.0.zip \
+    && UNZIP_DISABLE_ZIPBOMB_DETECTION=TRUE unzip -o java-tron-1.0.0.zip \
     && mv java-tron-1.0.0 $BASE_DIR \
     && cd $TMP_DIR && cd .. \
     && rm -rf $TMP_DIR \
@@ -40,8 +40,6 @@ RUN set -o errexit -o nounset \
     && mv $JAVA_HOME/jre /usr/local \
     && rm -rf $JAVA_HOME \
     && yum clean all
-
-RUN wget -P $BASE_DIR/config https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/main_net_config.conf
 
 ENV JAVA_HOME="/usr/local/jre"
 ENV PATH=$PATH:$JAVA_HOME/bin

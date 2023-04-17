@@ -8,6 +8,9 @@ from auth.main import app as auth_app
 from auth.main import startup as auth_startup
 from db.base import Base, init_db
 from httpx import AsyncClient
+from networks.config import settings as networks_settings
+from networks.main import app as networks_app
+from networks.main import startup as networks_startup
 from projects.config import settings as projects_settings
 from projects.main import app as projects_app
 from projects.main import startup as projects_startup
@@ -65,6 +68,18 @@ async def stats_client():
 @pytest.fixture
 async def stats_config():
     return stats_settings
+
+
+@pytest.fixture()
+async def networks_client():
+    async with AsyncClient(app=networks_app, base_url="http://test") as test_client:
+        await networks_startup()
+        yield test_client
+
+
+@pytest.fixture
+async def networks_config():
+    return networks_settings
 
 
 @pytest.fixture

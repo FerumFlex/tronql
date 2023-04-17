@@ -34,8 +34,20 @@ export const GET_PROJECTS = gql`
           rateLimit
           ratePeriod
         }
+        network {
+          slug
+          title
+          headerInDomain
+        }
+        currentStats {
+          total
+        }
       }
       count
+    }
+    networks {
+      slug
+      title
     }
   }
 `;
@@ -56,6 +68,11 @@ export const GET_PROJECT = gql`
         requestsPerMonth
         rateLimit
         ratePeriod
+      }
+      network {
+        slug
+        title
+        domain
       }
       currentStats {
         total

@@ -24,6 +24,9 @@ token_web:
 stats_web:
 	set -o allexport; source .env; set +o allexport; . .venv/bin/activate; uvicorn --reload stats.main:app --port 4103 --host 0.0.0.0
 
+networks_web:
+	set -o allexport; source .env; set +o allexport; . .venv/bin/activate; uvicorn --reload networks.main:app --port 4104 --host 0.0.0.0
+
 stats_worker:
 	set -o allexport; source .env; set +o allexport; . .venv/bin/activate; python3 -m stats.worker
 
