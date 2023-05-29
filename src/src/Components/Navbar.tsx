@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createStyles, Navbar, Anchor, getStylesRef, rem } from '@mantine/core';
-import { IconDatabaseImport, IconLogout } from '@tabler/icons';
+import { IconDatabaseImport, IconLogout, IconBusinessplan } from '@tabler/icons';
 import { useNavigate } from 'react-router-dom';
 import { UserButton } from './UserButton';
 import { useStore } from '../store';
@@ -64,6 +64,7 @@ const useStyles = createStyles((theme) => ({
 
 const data = [
   { link: '/dashboard', label: 'Projects', icon: IconDatabaseImport },
+  { link: '/dashboard/pricing', label: 'Pricing', icon: IconBusinessplan },
 ];
 
 export function NavbarSection() {

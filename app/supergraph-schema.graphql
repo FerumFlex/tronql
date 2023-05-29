@@ -50,7 +50,7 @@ type AccountFrozenBalance
   @join__type(graph: NODE)
 {
   frozenBalance: Float!
-  expireTime: DateTime!
+  expireTime: DateTime
 }
 
 type AccountResources
@@ -103,7 +103,7 @@ type Event
   @join__type(graph: NODE)
 {
   blockNumber: Int!
-  blockTimestamp: DateTime!
+  blockTimestamp: DateTime
   callerContractAddress: String!
   contractAddress: String!
   eventIndex: Int!
@@ -216,13 +216,14 @@ type TransactionInfo
   id: String!
   fee: Float
   blockNumber: Int!
-  blockTimeStamp: DateTime!
+  blockTimeStamp: DateTime
   contractResult: [String!]!
   contractAddress: String
   receipt: TransactionConsume!
   result: String
   resMessage: String
   internalTransactions: [TransactionInternal!]!
+  log: [TransactionLog!]
 }
 
 type TransactionInternal
@@ -236,14 +237,22 @@ type TransactionInternal
   rejected: Boolean!
 }
 
+type TransactionLog
+  @join__type(graph: NODE)
+{
+  address: String!
+  data: String!
+  topics: [String!]!
+}
+
 type TransactionRawData
   @join__type(graph: NODE)
 {
   refBlockBytes: String!
   refBlockHash: String!
-  expiration: DateTime!
+  expiration: DateTime
   feeLimit: Int
-  timestamp: DateTime!
+  timestamp: DateTime
   contract: [TransactionContract!]!
 }
 

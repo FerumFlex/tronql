@@ -96,6 +96,7 @@ type Mutation
   addProject(name: String!, networkSlug: String!): ProjectResponse! @join__field(graph: PROJECTS)
   deleteProject(projectId: Int!): ProjectResponse! @join__field(graph: PROJECTS)
   editProject(projectId: Int!, name: String!): ProjectResponse! @join__field(graph: PROJECTS)
+  validatePayment(txHash: String!): Boolean! @join__field(graph: PROJECTS)
 }
 
 type NetworkResponse

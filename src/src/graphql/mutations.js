@@ -106,3 +106,10 @@ export const CHANGE_PASSWORD = gql`
     changePassword(form: $form)
   }
 `;
+
+
+export const VALIDATE_PAYMENT = gql`
+  mutation ValidatePayment($txHash: String!) {
+    validatePayment(txHash: $txHash)
+  }
+`;

@@ -6,6 +6,8 @@ import { BrowserRouter } from "react-router-dom";
 import store, { StoreContext } from './store';
 import { ApolloProvider } from '@apollo/client';
 import { client } from './Apollo';
+import { MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -16,7 +18,10 @@ root.render(
     <StoreContext.Provider value={store}>
       <BrowserRouter>
         <ApolloProvider client={client}>
-          <App />
+          <MantineProvider theme={{ colorScheme: "dark" }} withNormalizeCSS withGlobalStyles>
+            <Notifications />
+            <App />
+          </MantineProvider>
         </ApolloProvider>
       </BrowserRouter>
     </StoreContext.Provider>

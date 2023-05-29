@@ -17,6 +17,7 @@ from node.datatypes import (
     TransactionContractParameterValue,
     TransactionInfo,
     TransactionInternal,
+    TransactionLog,
     TransactionRawData,
     TransactionResult,
     Witnes,
@@ -153,9 +154,10 @@ def parse_transaction(data: dict) -> Transaction:
 
 
 def parse_transaction_info(data: dict) -> Transaction:
-    receipt = data.get("receipt", {})
+    receipt = data.pop("receipt", {})
+    log = data.pop("log", [])
     result = TransactionInfo(
-        blockTimeStamp=from_timestamp(data.get("blockTimeStamp")),
+        blockTimeStamp=from_timestamp(data.pop("blockTimeStamp")),
         internal_transactions=[
             TransactionInternal(
                 callValueInfo=json.dumps(row.get("callValueInfo")), **row
@@ -168,6 +170,14 @@ def parse_transaction_info(data: dict) -> Transaction:
             net_usage=receipt.get("net_usage"),
             result=receipt.get("result"),
         ),
+        log=[
+            TransactionLog(
+                address=row["address"],
+                data=row["data"],
+                topics=[r.strip("'") for r in row.get("topics", [])],
+            )
+            for row in log
+        ],
         **data,
     )
     return result

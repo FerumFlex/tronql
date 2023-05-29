@@ -131,6 +131,13 @@ class Transaction:
 
 
 @strawberry.type
+class TransactionLog:
+    address: str
+    data: str
+    topics: list[str] = None
+
+
+@strawberry.type
 class TransactionInfo:
     id: str
     fee: float | None = None
@@ -142,6 +149,7 @@ class TransactionInfo:
     result: str | None = None
     resMessage: str | None = None
     internal_transactions: List[TransactionInternal]
+    log: list[TransactionLog] | None
 
 
 @strawberry.type

@@ -7,6 +7,7 @@ import { ProjectsPage } from "../Pages/Project/List";
 import { NavbarSection } from "../Components/Navbar";
 import { NotFoundPage } from "../Pages/NotFound";
 import { ProjectViewPage } from "../Pages/Project/View";
+import { PricingViewPage } from "../Pages/Pricing";
 
 
 export const DashboardLayout = ({header_links, footer_data, all_classes}: {header_links: any, footer_data: any, all_classes: any}) => {
@@ -21,6 +22,7 @@ export const DashboardLayout = ({header_links, footer_data, all_classes}: {heade
         <div className={all_classes.content}>
           <Routes>
             <Route path="/project/:projectId" element={<ProjectViewPage />}></Route>
+            <Route path="/pricing" element={<PricingViewPage />}></Route>
             <Route path="/" element={<ProjectsPage />}></Route>
             <Route path="*" element={<NotFoundPage />}></Route>
           </Routes>

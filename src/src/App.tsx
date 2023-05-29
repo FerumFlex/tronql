@@ -9,6 +9,10 @@ import { DashboardLayout } from "./Layouts/Dashboard";
 import { useMutation, useQuery } from '@apollo/client';
 import { ME } from "./graphql/queries";
 import { REFRESH_TOKEN } from "./graphql/mutations";
+import BigNumber from "bignumber.js";
+
+
+BigNumber.config({ EXPONENTIAL_AT: 40 })
 
 
 const useStyles = createStyles((theme) => ({

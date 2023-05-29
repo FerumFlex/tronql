@@ -146,3 +146,18 @@ class FusionAuthService(BaseService):
                 "Content-Type": "application/json",
             },
         )
+
+    async def update_user_data(self, user_id: str, data: dict) -> dict:
+        params = {
+            "user": {
+                "data": data,
+            }
+        }
+        return await self._request(
+            "PATCH",
+            f"/api/user/{user_id}",
+            json=params,
+            headers={
+                "Content-Type": "application/json",
+            },
+        )

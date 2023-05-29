@@ -76,6 +76,16 @@ class ProjectRepository:
             data = result.mappings().one_or_none()
             return (data.get("Project"), data.get("Plan")) if data else (None, None)
 
+    async def set_plan_for_user_projects(self, user_id: str, plan_slug: str) -> None:
+        plan = await plan_repository.get_by_slug(plan_slug)
+        async with session_manager() as session:
+            query = (
+                sa.update(Project)
+                .values(plan_id=plan.id)
+                .where(Project.user_id == user_id)
+            )
+            await session.execute(query)
+
 
 class PlanRepository:
     async def get_by_ids(self, plan_ids: list[int]) -> list[Plan]:

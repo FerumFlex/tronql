@@ -1,10 +1,15 @@
 import strawberry
+import utils
 from common.datatypes import PaginationResponse
 from common.errors import ValidationError
 from common.permissions import IsAuthenticated
+from projects.config import settings
 from projects.datatypes import PlanResponse, ProjectResponse
 from projects.helpers import generate_token
 from projects.repository import plan_repository, project_repository
+from services.contract import Contract
+from services.fusionauth import FusionAuthService
+from services.node import TronNodeService
 from strawberry.types import Info
 
 
@@ -76,3 +81,51 @@ class Mutation:
             info.context.user.id, project_id, name
         )
         return ProjectResponse.from_db(project)
+
+    @strawberry.mutation(permission_classes=[IsAuthenticated])
+    async def validate_payment(self, tx_hash: str, info: Info) -> bool:
+        node_service = TronNodeService(
+            settings.tron_node_url, settings.tron_node_api_key
+        )
+        async with node_service:
+            data = await node_service.get_transaction_info(tx_hash)
+            contract_address = data.get("contract_address")
+            if not contract_address:
+                return False
+
+            contract_address = utils.to_base58(contract_address)
+            if contract_address != settings.market_contract_address:
+                return False
+
+            logs = data.get("log", [])
+            if not logs:
+                return False
+
+            abi = utils.load_abi("Market")["entrys"]
+            contract = Contract(abi)
+
+            for log in logs:
+                if contract.can_decode(log):
+                    event_name, params = contract.decode_log(log)
+                    if (
+                        event_name == "Payed"
+                        and params["userId"] == info.context.user.id
+                    ):
+                        plan_slug = params["plan"]
+                        await project_repository.set_plan_for_user_projects(
+                            info.context.user.id, plan_slug
+                        )
+
+                        async with FusionAuthService(
+                            settings.fusion_api_url,
+                            settings.fusion_api_key,
+                            settings.fusion_app_id,
+                        ) as fusion:
+                            data = {
+                                "plan_slug": plan_slug,
+                            }
+                            await fusion.update_user_data(info.context.user.id, data)
+
+                        return True
+
+        return False

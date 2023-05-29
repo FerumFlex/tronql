@@ -90,3 +90,23 @@ export const GET_PROJECT = gql`
     }
   }
 `;
+
+
+export const GET_PLANS = gql`
+  query getPlans {
+    plans {
+      id
+      slug
+      createdAt
+      updatedAt
+      requestsPerMonth
+      rateLimit
+      ratePeriod
+      title
+      description
+      visibility
+      price
+      currency
+    }
+  }
+`;
